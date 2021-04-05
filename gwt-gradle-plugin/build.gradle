@@ -2,9 +2,10 @@ import org.gradle.plugins.ide.eclipse.model.*
 
 buildscript {
 	repositories {
+		mavenCentral()
 		jcenter()
 	}
-	
+
 	dependencies {
 		classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.11.0'
 		classpath 'me.tatarka:gradle-retrolambda:3.2.4'
@@ -64,7 +65,7 @@ javadoc {
 }
 
 group='de.richsource.gradle.plugins'
-version='0.7-SNAPSHOT'
+version='0.7'
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
@@ -88,11 +89,20 @@ publishing {
 			}
 		}
 	}
-	repositories {
-		maven {
-			url new File(rootProject.projectDir, 'repo').toURI()
-		}
-	}
+    repositories {
+        maven {
+            credentials {
+                username "$nexusUsername"
+                password "$nexusPassword"
+            }
+
+            if(project.version.endsWith('-SNAPSHOT')) {
+                url "https://nexus-internal.cloudbees.com/content/repositories/snapshots"
+            } else {
+                url "https://nexus-internal.cloudbees.com/service/local/staging/deploy/maven2"
+            }
+        }
+    }
 }
 
 rootProject.tasks.publish.dependsOn project.tasks.publish
